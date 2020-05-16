@@ -1,69 +1,35 @@
-Tutorial
+# Tutorial
+* https://philipzheng.gitbook.io/docker_practice/
+* https://ithelp.ithome.com.tw/articles/10199339
 
-https://philipzheng.gitbook.io/docker_practice/
+# Dockerfile
+* Official website: https://docs.docker.com/engine/reference/builder/
 
- 
+### Dockerfile 分為四部分：
+1. 基底映像檔資訊
+2. 維護者資訊
+3. 映像檔操作指令
+4. 容器啟動時執行指令
 
-https://ithelp.ithome.com.tw/articles/10199339
+### 說明
+* 使用 `#` 來註釋
+* `FROM` 指令告訴 Docker 使用哪個映像檔作為基底
+* `MAINTAINER` 是維護者的信息
+* `RUN` 開頭的指令會在建立映像檔時執行
+    * `RUN` 當命令較長時可以使用 `\` 來換行
+    * 在 shell 中執行 `RUN /bin/sh -c`
+    * 使用 exec 執行 `RUN ["executable", "param1", "param2"]`
+    * 比如使用 apt-get 來安裝一個套件 `RUN apt-get -y update && apt-get install -y supervisor`
+* `ADD` 命令複製本地檔案到映像檔
+* `EXPOSE` 命令向外部開放埠號
+* `CMD` 命令描述容器啟動後執行的程序等，每個 Dockerfile 只能有一條 `CMD` 命令 ，如果指定了多條命令，只有最後一條會被執行
+    * 使用 exec 執行 `CMD ["executable", "param1", "param2"]`
+    * 在 shell 中執行，需要互動的指令的情況時使用 `CMD command param1 param2`
+    * 提供給 `ENTRYPOINT` 的預設參數 `CMD ["param1", "param2"]`
+* `ENTRYPOINT`：每個 Dockerfile 中只能有一個 `ENTRYPOINT`，當指定多個時，只有最後一個會生效。
 
-Dockerfile
-
-Official website: https://docs.docker.com/engine/reference/builder/
-
-Dockerfile 分為四部分：
-
-基底映像檔資訊
-
-維護者資訊
-
-映像檔操作指令
-
-容器啟動時執行指令
-
-使用 # 來註釋
-
-FROM 指令告訴 Docker 使用哪個映像檔作為基底
-
-MAINTAINER 是維護者的信息
-
-RUN 開頭的指令會在建立映像檔時執行
-
-在 shell 中執行
-
-RUN /bin/sh -c
-
-使用 exec 執行
-
- RUN ["executable", "param1", "param2"]
-
-比如使用 apt-get 來安裝一個套件 
-
-RUN apt-get -y update && apt-get install -y supervisor
-
-RUN 當命令較長時可以使用 \ 來換行
-
-ADD 命令複製本地檔案到映像檔
-
-EXPOSE 命令向外部開放埠號
-
-CMD 命令描述容器啟動後執行的程序等，每個 Dockerfile 只能有一條 CMD 命令 ，如果指定了多條命令，只有最後一條會被執行
-
-使用 exec 執行
-
-CMD ["executable", "param1", "param2"] 
-
-在 shell 中執行，需要互動的指令的情況時使用
-
-CMD command param1 param2 
-
- 提供給 ENTRYPOINT 的預設參數
-
-CMD ["param1", "param2"]
-
-ENTRYPOINT：每個 Dockerfile 中只能有一個 ENTRYPOINT，當指定多個時，只有最後一個會生效。
-
-example
-
+### Example 1
+```
 # 載入 Node.js 需要的執行環境
 # 每個不同的程式需要的環境可能都不同，這裏下載的是 node:10.15.3-alpine
 # 詳細的其他版本可以在 Dockerhub 上看到
@@ -83,9 +49,9 @@ EXPOSE 3000
 
 # 透過 node index.js 來執行我們的 Server
 CMD node index.js    # execute node index.js
-
-example
-
+```
+### Example 2
+```
 # 使用官方的 Python 執行環境作為基本的 Docker 影像
 FROM python:2.7-slim
 
@@ -106,45 +72,32 @@ ENV NAME World
 
 # 當 Docker 容器啟動時，自動執行 app.py
 CMD ["python", "app.py"]
+```
 
-Images
+# Images
+* Image is a template
+* Image 是用來建立 container 的模板，一個 image 可以建立很多個不同的 container
+* Image 是唯讀的
+* A image has max 127 layers
+* Docker 在執行容器前需要本地端存在對應的映像檔，如果映像檔不存在本地端，Docker 會從映像檔倉庫下載（預設是 Docker Hub 公共註冊伺服器中的倉庫）
 
-Image is a template
+# Containers
+* Container is an instance of image. Programs run in container
+* 容器是獨立執行的一個或一組應用，以及它們的執行態環境
+* 使用者可以隨時刪除和新建立容器
+* Container 啟動時，會在上面建立一層可以寫入的層級。(最多寫入127層)
 
-唯讀的
+# Repository
+* Repository is used to keep all images
 
-A image can create many container
+# Registry 註冊伺服器
+* 註冊伺服器是管理倉庫的具體伺服器，每個伺服器上可以有多個倉庫，而每個倉庫下面有多個映像檔
 
-A image has max 127 layers
-
-Docker 在執行容器前需要本地端存在對應的映像檔，如果映像檔不存在本地端，Docker 會從映像檔倉庫下載（預設是 Docker Hub 公共註冊伺服器中的倉庫）
-
-Containers
-
-Container is an instance of image. Programs run in container
-
-容器是獨立執行的一個或一組應用，以及它們的執行態環境
-
-使用者可以隨時刪除和新建立容器
-
-Container 啟動時，會在上面建立一層可以寫入的層級。(最多寫入127層)
-
-Repository
-
-Repository is used to keep all images
-
-Registry 註冊伺服器
-
-註冊伺服器是管理倉庫的具體伺服器，每個伺服器上可以有多個倉庫，而每個倉庫下面有多個映像檔
-
-Docker commands
-
-Official website: 
-
-https://docs.docker.com/engine/reference/commandline/docker/
-
-https://docs.docker.com/engine/reference/commandline/cli/
-
+# Docker commands
+* Official website: 
+    * https://docs.docker.com/engine/reference/commandline/docker/
+    * https://docs.docker.com/engine/reference/commandline/cli/
+```bash
 # help
 docker --help
 
@@ -311,6 +264,8 @@ gcloud docker -- push  asia.gcr.io/joyi-205504/aaa:v1
 docker network ls
 
 docker stats
+```
 
+* `docker load` 和 `docker import` 的區別
 
 使用者既可以使用 docker load 來匯入映像檔儲存檔案到本地映像檔庫，也可以使用 docker import 來匯入一個容器快照到本地映像檔庫。這兩者的區別在於容器快照檔案將丟棄所有的歷史記錄和原始資料訊息（即僅保存容器當時的快照狀態），而映像檔儲存檔案將保存完整記錄，檔案體積也跟著變大。此外，從容器快照檔案匯入時可以重新指定標籤等原始資料訊息。
