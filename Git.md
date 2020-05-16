@@ -77,8 +77,4 @@ git push <remote> <new_name>
 
 # Reset the upstream branch for the new_name local branch
 git push <remote> -u <new_name>
-LikeBe the first to like this
-kb-how-to-article
-Write a comment…
-Flag notifications
 ```
