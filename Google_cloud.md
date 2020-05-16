@@ -1,38 +1,11 @@
 
+# gcloud
+* 安裝 `./google-cloud-sdk/install.sh`
+* 初始化 `./google-cloud-sdk/gcloud init`
 
-
-
-
-
-
-
-
-Yu-Ting Shen
-/
-How-to articles
-
-
-
-
-
-
-Share
-
-
-Google Cloud
-Created by Yu-Ting Shen
-Last updated May 11, 2020
-AnalyticsAnalytics
-
-gcloud
-安裝 ./google-cloud-sdk/install.sh
-
-初始化 ./google-cloud-sdk/gcloud init
-
-Settings
-
-configuration 在 gcloud CLI 中是 properties 預設是用 default 可以用 gcloud init 或是 gcloud config set 來設定 properties
-
+### Settings
+* configuration 在 gcloud CLI 中是 properties 預設是用 default 可以用 gcloud init 或是 gcloud config set 來設定 properties
+```bash
 # Set project
 gcloud config set project development-233900
 
@@ -45,7 +18,7 @@ gcloud config list
 # 要或不要送資料給 google
 gcloud config set disable_usage_reporting true (或 false) 
 gcloud init --console-only 設定時不要開啟 broswer
-
+```
 gcloud auth list 有哪些帳號在本機上
 
  
@@ -59,15 +32,18 @@ getconf LONG_BIT 看幾位元
 存取 google cloud storage 上的檔案
 
 gs://bucket_name/path/to/the/file
-Cloud SDK components
 
+# Cloud SDK components
+```bash
 # 安裝 alpha 和 beta 版本
 gcloud components install
 
 # Update Google Cloud SDK components
 gcloud components update
-Google Cloud VM
+```
 
+# Google Cloud VM
+```
 # List all VM
 gcloud compute instances list 
 
@@ -195,10 +171,4 @@ $ gcloud config list --format='value(core.project)'
 dominos-pipeline
 
 gcloud ai-platform jobs cancel JOB_NAME
-
-
-
-LikeBe the first to like this
-kb-how-to-article
-Write a comment…
-Flag notifications
+```
