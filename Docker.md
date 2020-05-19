@@ -191,7 +191,7 @@ docker rm contain_name_or_id 刪除一個處於終止狀態的容器
 docker logs containdr_id
 # -f：不會跳出，會一直列印最新的log資訊
 
-#
+# 列出容器，等價於 docker ps
 docker container ls
 
 # Transfer files
