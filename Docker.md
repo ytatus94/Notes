@@ -264,6 +264,8 @@ gcloud docker -- push  asia.gcr.io/joyi-205504/aaa:v1
 docker network ls
 
 docker stats
+
+docker tag IMAGE[:TAG] [REGISTRYHOST/][USERNAME/]NAME[:TAG]
 ```
 
 * `docker load` 和 `docker import` 的區別
