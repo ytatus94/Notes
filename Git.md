@@ -77,4 +77,7 @@ git push <remote> <new_name>
 
 # Reset the upstream branch for the new_name local branch
 git push <remote> -u <new_name>
+
+# 
+git commit --amend --author "New Author Name <email@address.com>"
 ```
