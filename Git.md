@@ -80,4 +80,17 @@ git push <remote> -u <new_name>
 
 # 
 git commit --amend --author "New Author Name <email@address.com>"
+
+# Rebase, if you are on the branch you want to rebase
+git rebase <new_base>
+
+# Rebase, if you are not on the branch you want to rebase
+git rebase <new_base> <other_branch>
+
+# Solve conflict when rebase
+git add <file-name>
+git rebase --continue
+
+# Rebase, move the base of branch from old_base to new_base
+git rebase --onto <new_base> <old_base> <branch>
 ```
