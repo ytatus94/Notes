@@ -29,17 +29,43 @@ sqlContext = SQLContext(sc) # 順便建立 SQL Context
 * 常用的 pySpark import
 ```python
 from pyspark.sql import SparkSession # 這個是進入點
+from pyspark import SparkConf, SparkContext # 這個是在 SparkSession 推出來以前所使用的舊的方式
 from pyspark.sql import Row
-from pyspark.sql.types import *
+from pyspark.sql.types import * # pyspark 的數據類型
 from pyspark.sql.functions import *
 from pyspark.sql import functions as F
 from pyspark.sql.functions import isnull, 
-from pyspark.sql.functions import concat, concat_ws, format_string # 字串處理時用的
+from pyspark.sql.functions import concat, concat_ws, format_string, instr, substring, regexp_extract, regexp_replace, repeat, split # 字串處理時使用的
+from pyspark.sql.functions import udf # 要用到 user defined functions 時使用的
 ```
 * Spark 是 lazy 的，分成了 transformation 和 action
   * transformation 是指明要做什麼動作，但還不會去執行動作
   * action 才是真正會去執行動作
     * `show()`, `collect()` 是 action
+* 設定 Spark 的進入點，這是在 import library 後第一個要執行的東西
+```python
+spark = SparkSession.builder.appName("輸入些什麼").getOrCreate()
+spark = SparkSession.builder.master("local[2]").appName("輸入些什麼").enableHiveSupport().getOrCreate()
+sc = spark.sparkContext # 舊的方式
+```
+* pyspark 常用的數據型態有
+```python
+StructType() # 結構 
+StructField() # 結構中的元素
+LongType() # 長整數 
+StringType() # 字串 
+IntegerType() # 整數
+FloatType() # 浮點數
+```
+* 定義 Spark dataframe 的數據結構
+  * 第三個元素是說該欄位是否允許有 null
+```python
+schema = StructType([
+    StructField("col1", 數據型態, True),
+    StructField("col2", 數據型態, True),
+    ...
+])
+```
 * 建立 Spark dataframe
 ```python
 # 把 SQL query 的結果直接轉成 Spark dataframe
@@ -148,12 +174,52 @@ df1.select('欄位').subtract(df2.select('欄位')) # 差集，把 df2 中和 df
 df.explode('欄位', '新欄位'){x: 欄位型態 => 對 x 做的運算} # x 是表示原本的欄位的數值
 ```
 * 對字串欄位做處理
+  * 字符就是一個字母或數字，字串是好多個字元或數字組成的
 ```python
 # 把兩個字串欄位接在一起，變成新的欄位，結果是 str_col1str_col2
-df.select(F.concat(df.str_col1, df.str_col2).alias('str_col3'))
+df.select(F.concat(df.str_col1, df.str_col2).alias('str_col3')).show()
 # 把兩個字串欄位用連接符號接在一起，變成新的欄位，結果是 str_col1連接符號str_col2
-df.select(concat_ws('連接符號', df.str_col1, df.str_col2).alias('str_col3')).show()
+df.select(F.concat_ws('連接符號', df.str_col1, df.str_col2).alias('str_col3')).show()
+# 格式化輸出字串欄位
+df.select(F.format_string('%d %s', df.str_col1, df.str_col2).alias('str_col3')).show()
+# 查詢字符的位置，傳回的結果是 index + 1，也就是說從 1 開始算的
+df.select(F.instr(df.str_col1, '要查詢的字符').alias('str_col2')).show()
+# 字符取代
+df.select(substring(df.str_col1, 要被取代的字符, 用來取代的字符).alias('str_col2')).show()
+# Regular expansion
+df = spark.createDataFrame([('100-200',)], ['str'])
+df.select(regexp_extract('str', '(\d+)-(\d+)', 1).alias('d')).show()
+# '100'
+
+df = spark.createDataFrame([('foo',)], ['str'])
+df.select(regexp_extract('str', '(\d+)', 1).alias('d')).show()
+
+df = spark.createDataFrame([('100-200',)], ['str'])
+df.select(regexp_replace('str', '(\\d+)', '--').alias('d')).collect()
 ```
+* 使用 user defined functions (UDF)
+https://blog.csdn.net/crazybean_lwb/article/details/87006752?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.channel_param
+  * 比較簡單的函數可以用 lambda function
+  * 比較複雜一點的函數可以自己定義一個
+    * 先定義一個 python function
+    * 把定義好的 python function 註冊到 udf 裡面
+    * 然後就能在 pySpark 中使用 udf
+```python
+# 用 lambda function
+my_udf = F.udf(lambda x, y: do_something_for_x_and_y)
+df.withColumn('new_col', my_udf(df.col1, df.col2)).show()
+# 用自己定義的函數
+def my_function(x):
+    return something
+my_function_UDF = udf(my_function, my_function 的回傳值的型態)
+df.withColumn('new_col', my_function_UDF('col')).show()
+```
+* PySpark 統計
+https://blog.csdn.net/suzyu12345/article/details/79673557?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param
+* PySpark 日期函數
+https://blog.csdn.net/suzyu12345/article/details/79673569?utm_medium=distribute.pc_relevant.none-task-blog-title-4&spm=1001.2101.3001.4242
+* PySpark functions
+https://blog.csdn.net/qq_40176087/article/details/100110804?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param
 
 
 * `groupBy()`
@@ -167,8 +233,17 @@ import pyspark.sql.functions as F
 df.groupBy('欄位名1').agg(F.max('欄位名2'), F.sum('欄位名3')).show()
 
 ```
-
-
+* Spark 的設定
+  * 增加 spark 記憶體
+```bash
+set by SparkConf:  conf.set("spark.driver.maxResultSize", "3g")
+set by spark-defaults.conf  spark.driver.maxResultSize 3g
+set when callingspark-submit    --conf spark.driver.maxResultSize=3g
+```
+  * 啟用 Arrow
+  `spark.conf.set("spark.sql.execution.arrow.enabled", "true")`
+  也可以在conf/spark-defaults.conf文件中写入：spark.sql.execution.arrow.enabled=true 
+  
 * Missing value
 ```python
 # 刪除有 missing 的 column
@@ -208,6 +283,17 @@ std = df.select(F.stddev('col')).collect()[0][0] # 直接用統計函數來算
 ```
 * 去重
 
-
-
+* Spark dataframe 和 Pandas dataframe 互相轉換
+```python
+pandas_df = spark_df.toPandas() # Spark dataframe 變成 Pandas dataframe
+spark_df = sqlContext.createDataFrame(pandas_df) # Pandas dataframe 變成 Spark dataframe
+```
+* Spark dataframe 和 Spark RDD 互相轉換
+  * RDD 要變成 dataframe 的話，RDD 的類型必須是 Row
+```python
+rdd_df = spark_df.rdd # Spark dataframe 變成 RDD
+spark_df = rdd_df.toDF() # RDD 變成 Spark dataframe 
+```
+* 讀取 CSV
+df = spark.read.csv('../data/rating.csv', sep = ',', header = True) #自动判断格式interSchema=True
 
