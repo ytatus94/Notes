@@ -30,6 +30,7 @@ sqlContext = SQLContext(sc) # 順便建立 SQL Context
 ```python
 from pyspark.sql import SparkSession # 這個是進入點
 from pyspark import SparkConf, SparkContext # 這個是在 SparkSession 推出來以前所使用的舊的方式
+from pyspark import HiveContext # 需要用到 Hive 時使用的
 from pyspark.sql import Row
 from pyspark.sql.types import * # pyspark 的數據類型
 from pyspark.sql.functions import *
@@ -44,9 +45,14 @@ from pyspark.sql.functions import udf # 要用到 user defined functions 時使�
     * `show()`, `collect()` 是 action
 * 設定 Spark 的進入點，這是在 import library 後第一個要執行的東西
 ```python
+# 新的方式用 SparkSession
 spark = SparkSession.builder.appName("輸入些什麼").getOrCreate()
 spark = SparkSession.builder.master("local[2]").appName("輸入些什麼").enableHiveSupport().getOrCreate()
-sc = spark.sparkContext # 舊的方式
+# 舊的方式用 SparkContext
+sc = SparkContext()
+sc = SparkContext('local', '輸入點什麼')
+# 用 SparkSession 來存取 SparkContext
+sc = spark.sparkContext
 ```
 * pyspark 常用的數據型態有
 ```python
@@ -58,7 +64,7 @@ IntegerType() # 整數
 FloatType() # 浮點數
 ```
 * 定義 Spark dataframe 的數據結構
-  * 第三個元素是說該欄位是否允許有 null
+  * 第三個元素是說該欄位是否允許有 null (i.ei nullable)
 ```python
 schema = StructType([
     StructField("col1", 數據型態, True),
@@ -74,7 +80,22 @@ df = spark.sql("SQL query 敘述")
 row = Row('欄位名 1', '欄位名 2', ...)
 df = sc.parallelize([row(第一列欄位 1 的值, 第一列欄位 2 的值, ...), 
                      ..., 
-                     row(第 n 列欄位 1 的值, 第 n 列欄位 2 的值, ...)]).toDF()
+                     row(第 n 列欄位 1 的值, 第 n 列欄位 2 的值, ...)]).toDF() # 這邊其實是建立 RDD 再把 RDD 轉成 Spark dataframe
+# 由 RDD 來建立
+spark_RDD = spark.sparkContext.parallelize(
+    [(row1_col1, row1_col2, ...),
+     (row2_col1, row2_col2, ...),
+     ...
+    ]
+)
+table_schema = StrucType(
+    [StrucField('col1', type, nullable),
+     StrucField('col2', type, nullable),
+     ...
+    ]
+)
+df = spark.createDataFrame(spark_RDD, table_schema)
+df = spark_RDD.toDF(table_schema)
 # 由 list 來建立
 list_name = [(raw1_val1, raw1_val2, raw1_val3, ...),
              (raw2_val1, raw2_val2, raw2_val3, ...),
@@ -102,6 +123,10 @@ df.printSchema()
 ```python
 df.count()
 ```
+* 顯示 Spark dataframe 的欄位名字
+```python
+df.columns
+```
 * 顯示 Spark dataframe 頭幾 rows 的資料 (會從 work nodes 把資料抓回 local)
 ```python
 df.head(n) # 前 n rows
@@ -118,7 +143,8 @@ df.collect()
 ```
 * 顯示 Spark dataframe 的統計資訊
 ```python
-df.describe().show() # 記得要加上 show()
+df.describe().show() # 顯示全部欄位的，記得要加上 show()
+df.describe('欄位').show() # 只顯示某個欄位的
 ```
 * 去除重複的
 ```python
@@ -216,8 +242,11 @@ df.withColumn('new_col', my_function_UDF('col')).show()
 ```
 * PySpark 統計
 https://blog.csdn.net/suzyu12345/article/details/79673557?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.channel_param
+
+
 * PySpark 日期函數
 https://blog.csdn.net/suzyu12345/article/details/79673569?utm_medium=distribute.pc_relevant.none-task-blog-title-4&spm=1001.2101.3001.4242
+
 * PySpark functions
 https://blog.csdn.net/qq_40176087/article/details/100110804?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param
 
@@ -294,6 +323,50 @@ spark_df = sqlContext.createDataFrame(pandas_df) # Pandas dataframe 變成 Spark
 rdd_df = spark_df.rdd # Spark dataframe 變成 RDD
 spark_df = rdd_df.toDF() # RDD 變成 Spark dataframe 
 ```
-* 讀取 CSV
+* 讀檔到 Spark 裡面
+```python
+# 從 Hive 上讀檔案
+sc = SparkContext
+hive_context = HiveContext(sc)
+parquet_data = hive_context.read.load(檔案在 HDFS 上的絕對路徑)
+csv_data = hive_context.read.csv(檔案在 HDFS 上的絕對路徑, header=True)
+```
+
+CSV
 df = spark.read.csv('../data/rating.csv', sep = ',', header = True) #自动判断格式interSchema=True
 
+df.select('欄位 1', '欄位 2', ...).show()
+df.select('欄位 1', '欄位 2', ...).distinct().show() # 會去重
+
+* 過濾數據 `filter()` 或是 `where()`
+```python
+df.filter(df.col == '某個值').show()
+df.filter((df.col1 == '某個值') & (df.col2 == '某個值') & ...).show() # 有好幾個條件時
+```
+* 刪除欄位
+df.drop(col)
+* 把 Spark dataframe 存到 table 中
+df.write.mode('overwrite').saveAsTable('table_name')
+* 緩存 Spark dataframe
+df.persis()
+df.cache()
+* 聚合運算
+df.agg(某函數(col))
+* 取別名
+df.col.alias('新名字')
+* 隨機劃分 Spark dataframe
+df.randomSplit()
+
+df.registerTempTable('table_name') 可以用 spark.sql('SQL Query').show() 來查詢資料
+
+df.where(F.col('欄位').between(數值1, 數值2))
+
+from pyspark.sql.functions import monotonically_increasing_id
+df1 = df.withColumn('index', monotonically_increasing_id()) # 添加一個欄位當索引
+df1.select(df1.col1, df1.index.between(數值1, 數值2)).show()
+
+df.drop(how='any or all', thresh=某個整數, subset=[要被丟掉的欄位們]
+df.na.fill(value, subset=[要填補的欄位們]) value 可以是 {'col1': 要填的值, 'col2': 要填的值, ...}
+df.replace(要被替換的值, 要替換成什麼值, subset=[要被替換的欄位們]
+如果要被替換的是 {'col1': val1, 'col2': val2} 就不需要有第二格參數
+如果要被替換的是 list 那要替換成什麼也必須是 list 且長度一樣，就是一對一的替換
