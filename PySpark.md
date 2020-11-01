@@ -33,7 +33,8 @@ from pyspark.sql import Row
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 from pyspark.sql import functions as F
-from pyspark.sql.functions import isnull
+from pyspark.sql.functions import isnull, 
+from pyspark.sql.functions import concat, concat_ws, format_string # 字串處理時用的
 ```
 * Spark 是 lazy 的，分成了 transformation 和 action
   * transformation 是指明要做什麼動作，但還不會去執行動作
@@ -146,7 +147,13 @@ df1.select('欄位').subtract(df2.select('欄位')) # 差集，把 df2 中和 df
 ```python
 df.explode('欄位', '新欄位'){x: 欄位型態 => 對 x 做的運算} # x 是表示原本的欄位的數值
 ```
-
+* 對字串欄位做處理
+```python
+# 把兩個字串欄位接在一起，變成新的欄位，結果是 str_col1str_col2
+df.select(F.concat(df.str_col1, df.str_col2).alias('str_col3'))
+# 把兩個字串欄位用連接符號接在一起，變成新的欄位，結果是 str_col1連接符號str_col2
+df.select(concat_ws('連接符號', df.str_col1, df.str_col2).alias('str_col3')).show()
+```
 
 
 * `groupBy()`
