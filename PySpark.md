@@ -264,7 +264,8 @@ https://blog.csdn.net/suzyu12345/article/details/79673569?utm_medium=distribute.
 https://blog.csdn.net/qq_40176087/article/details/100110804?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-10.channel_param
 
 
-* `groupBy()`
+* 用 `groupBy()`
+  * 可用的 aggregation functions 有 `avg('cols')`, `count()`, `max('cols')`, `min('cols'), `mean('cols')`, `sum('cols')`
 ```python
 # 對全部欄位做一樣的 aggregation function
 df.groupBy('欄位名').count().show()
@@ -500,3 +501,29 @@ spark2-submit --master yarn \
               --conf spark.yarn.maxAppAttempts=1 \
               --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
               pyspark_file.py
+```
+
+df.foreach(func_name) df.rdd.foreach(func_name)
+df.foreachPartition(func_name), df.rdd.foreachPartition(func_name)
+
+* map 和 reduce
+  * map 把 RDD 中的每個元素都經過 map 裡面的函數處理後，再傳回給原來的 RDD，每個 RDD 都是單獨處理的，不會影響到其他的。
+    * 最後的結果 RDD 的總數目是不變的
+    * map 是 1 對 1 關係
+  * flatMap 把 RDD 中的每個元素都經過處理後，傳回一個 list。
+    * 這個 list 裡面可以是 1 個或很多個 RDD，最後的結果 RDD 的總數目是不變或是變多
+    * flatMap 是 1 變多關係
+  * reduce 首先把 RDD 的前兩個元素拿來處理，產生的結果與 RDD 的第三格元素再拿來處理，一直這樣下去直到最後只剩下一個元素
+    * reduce 是多變 1
+  * reduceByKey(binary_function) 是作用在 RDD 的元素是 key-value 時，把相同 key 的元素拿來做 reduce 的處理，所以最終的結果是每個 key 只會有一個 value
+df.map(func_name)
+df.reduct(func_name)
+
+* 排序
+df.sort('col', ascending=False)
+
+* 把 Spark dataframe 注冊成 SQL 的表格
+  * 這樣就能對 dataframe 直接使用 SQL query 來查詢
+```python
+df.createOrReplaceTempView('table_name')
+```
