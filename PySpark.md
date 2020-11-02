@@ -26,23 +26,33 @@ sqlContext = SQLContext(sc) # 順便建立 SQL Context
 * `.withColumn(new_col, 算式)`
 * `.drop(col)`
 ---
+# Spark SQL
+
+# Spark MLlib
+
+
 * 常用的 pySpark import
 ```python
-from pyspark.sql import SparkSession # 這個是進入點
+from pyspark.sql import SparkSession # 這個是進入點，SparkConf, SparkContext, SQLContext 都已經被包含在 SparkSession 裡面了
 from pyspark import SparkConf, SparkContext # 這個是在 SparkSession 推出來以前所使用的舊的方式
 from pyspark import HiveContext # 需要用到 Hive 時使用的
 from pyspark.sql import Row
 from pyspark.sql.types import * # pyspark 的數據類型
 from pyspark.sql.functions import *
 from pyspark.sql import functions as F
-from pyspark.sql.functions import isnull, 
+import pyspark.sql.functions as F
+from pyspark.sql.functions import col
+from pyspark.sql.functions import isnull, isnan 
 from pyspark.sql.functions import concat, concat_ws, format_string, instr, substring, regexp_extract, regexp_replace, repeat, split # 字串處理時使用的
 from pyspark.sql.functions import udf # 要用到 user defined functions 時使用的
 ```
 * Spark 是 lazy 的，分成了 transformation 和 action
   * transformation 是指明要做什麼動作，但還不會去執行動作
+    * 像是 `filter`, `map`, `flatMap`, reduce` 是 transformation
   * action 才是真正會去執行動作
-    * `show()`, `collect()` 是 action
+    * 像是 `show()`, `collect()`, 'count()`, `first()`, `head()`, `take()` 是 action
+* Spark 的 dataframe 是 immutable 的，一但建立了就不能再改變
+  * 如果要改變 dataframe 的話，只能建立新的
 * 設定 Spark 的進入點，這是在 import library 後第一個要執行的東西
 ```python
 # 新的方式用 SparkSession
@@ -96,6 +106,9 @@ table_schema = StrucType(
 )
 df = spark.createDataFrame(spark_RDD, table_schema)
 df = spark_RDD.toDF(table_schema)
+
+createDataFrame(data,schema) ,其中data可以是list,rdd，pandas.DF ;schema可以是变量名列表，显示定义的类型以及默认（自行推断）
+
 # 由 list 來建立
 list_name = [(raw1_val1, raw1_val2, raw1_val3, ...),
              (raw2_val1, raw2_val2, raw2_val3, ...),
@@ -314,8 +327,12 @@ std = df.select(F.stddev('col')).collect()[0][0] # 直接用統計函數來算
 
 * Spark dataframe 和 Pandas dataframe 互相轉換
 ```python
-pandas_df = spark_df.toPandas() # Spark dataframe 變成 Pandas dataframe
-spark_df = sqlContext.createDataFrame(pandas_df) # Pandas dataframe 變成 Spark dataframe
+# Spark dataframe 變成 Pandas dataframe
+pandas_df = spark_df.toPandas()
+# Pandas dataframe 變成 Spark dataframe
+spark_df = sqlContext.createDataFrame(pandas_df)
+spark_df = spark.createDataFrame(pandas_df)
+spark_df = spark.createDataFrame(pandas_df.values.tolist(), list(pandas_df.columns))
 ```
 * Spark dataframe 和 Spark RDD 互相轉換
   * RDD 要變成 dataframe 的話，RDD 的類型必須是 Row
@@ -370,3 +387,116 @@ df.na.fill(value, subset=[要填補的欄位們]) value 可以是 {'col1': 要�
 df.replace(要被替換的值, 要替換成什麼值, subset=[要被替換的欄位們]
 如果要被替換的是 {'col1': val1, 'col2': val2} 就不需要有第二格參數
 如果要被替換的是 list 那要替換成什麼也必須是 list 且長度一樣，就是一對一的替換
+
+df.createGlobalTempView("temp_table")
+df_anothor=spark.sql("select * from global_temp.temp_table")
+df_local=spark.sql("select * from temp_table")
+spark.catalog.dropGlobalTempView("temp_table")
+createOrReplaceTempView()
+createTempView() 
+spark.catalog.dropGlobalTempView() 
+spark.catalog.dropTempView()
+
+df1.crossJoin(df2)
+相关系数&协方差（corr,cov）
+DF.corr(col_name1,col_name2)
+DF.cov(col_name1,col_name2)
+
+列联表 crosstab: 作用: 统计某一个变量（y）各类中，制定特征x的分布。
+y 等於某個值的時候 x 等於某個值的有幾個
+df.crosstab("y","x").show()
+
+ratings = spark.read.load("/FileStore/tables/u.data",format="csv", sep="\t", inferSchema="true", header="false")
+
+如果想對 RDD 用 UDF，就只要用 python 的方式定義出函數 row_wise_function() 再利用 map() 就可以了
+new_RDD = old_RDD.map(lambda row: row_wise_function(row))
+
+
+
+ratings.registerTempTable('ratings_table')
+
+
+* 查看分區數目
+df.rdd.getNumPartitions()
+
+* 讀寫檔案
+```python
+# 讀 CSV
+df = spark.read.csv(csv 檔案的路徑, header=True, inferSchema=True, sep=',')
+# 讀 parquet
+df = spark.read.parquet(parquet 檔案的路徑)
+# 讀 json
+df = spark.read.json(json 檔案的路徑)
+# 讀 txt
+df = spark.read.text(txt 檔案的路徑)
+# 讀 Oracle 或是 MySQL
+# 要把 mysql-jar 放到 spark-version-bin-hadoop2.7/jars 裡面
+df = spark.read.format('jdbc')\
+          .options(url='jdbc:oracle:thin:@ip:port:database', # 或是 'jdbc:mysql://ip'
+                   dbtable='table_name or SQL Query',
+                   user='user_name',
+                   password='password')\
+          .load()
+# 讀 Hive
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.enableHiveSupport().master('ip:port').appName('輸入點什麼').getOrCreate()
+df = spark.sql('用 SQL query 查詢 Hive table')
+# 讀 Impala
+from impala.dbapi import connect
+conn = connect(host='ip', port=port, user='user_name', password='password')
+cur = conn.cursor(user='user_name')
+cur.execute('SQL query 查詢')
+rdd = spark.sparkContext.parallelize(cur.fetchall())
+
+
+# 寫 CSV
+df.write.csv(path=要寫入的 CSV 檔案的路徑, header=True, sep=',', mode='overwrite')
+# 寫 parquet
+df.write.parquet(path=要寫入的 parquet 檔案的路徑, mode='overwrite')
+# 寫 Hive
+# 打開動態 partition
+spark.sql('set hive.exec.dynamic.partition.mod = nonstrict')
+spark.sql('set hive.exec.dynamic.partition=true')
+spark.sql("""
+    insert overwrite table hive_table_name
+    partition(name1)
+    SQL query 查詢，最後要加上 distribute by name1
+""")
+# 每次都重建一個 partition
+df.write.mode('overwrite').partitionBy('name1').insertInto('hive_table_name')
+df.write.saveAsTable('hive_table_name', None, 'append', partitionBy='name1')
+# 寫 HDFS
+df.write.mode('overwrite').options(header='true').csv(檔案路徑)
+# 寫 MySQL
+# 寫入方式可以是 overwrite 或是 append
+df.write.mode('寫入方式').format('jdbc')\
+  .options(url='jdbc:mysql://ip',
+           user='user_name',
+           password='password',
+           dbtable='table_name',
+           batchsize='batch 的大小')\
+  .save()
+```
+
+# Spark submit
+* [官方網頁說明](http://spark.apache.org/docs/latest/submitting-applications.html)
+```bash
+spark2-submit pyspark_file.py
+spark2-submit --master local[2] pyspark_file.py # 在 local 上用兩個 nodes 去跑
+spark2-submit --master yarn pyspark_file.py # 丟到 yarn 上去跑
+# 做詳細設定
+spark2-submit --master yarn \
+              --deploy-mode cluster \
+              --jars jar_file1.jar, jar_file2.jar, ...\
+              --driver-class-path driver1.jar : driver2.jar : ... \
+              --executor-memory 多少G \ # worker 上記憶體要用多大
+              --driver-memory 多少G \ # driver 上記憶體要用多大
+              --conf spark.app.name='輸入些什麼' \
+              --conf spark.default.parallelism=某個數 \
+              --conf spark.memory.fraction=0 ~ 1 之間的數 \
+              --conf spark.memory.storageFraction=0 ~ 1 之間的數 \
+              --conf spark.yarn.executor.memoryOverhead=2048 \
+              --conf spark.yarn.driver.memoryOverhead=1024 \
+              --conf spark.yarn.maxAppAttempts=1 \
+              --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+              pyspark_file.py
