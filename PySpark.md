@@ -527,3 +527,19 @@ df.sort('col', ascending=False)
 ```python
 df.createOrReplaceTempView('table_name')
 ```
+
+df.fillna() 和 df.na.fill() 是一樣的
+
+df.sort("age",ascending=False).show()
+df.sort(df.age.desc()).show()
+df.orderBy(df.age.desc()).show()
+
+DataFrame().registerTempTable() createOrReplaceTempView 互为同名函数
+
+data=df.repartition(7,'age').show()
+data.rdd.getNumPartitions()
+
+df.toJSON()
+
+* 顯示每個欄位的名字和型態，傳回的是 [('col1', 'type1'), ('col2', 'type2'), ...]
+df.dtypes
