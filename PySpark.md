@@ -543,3 +543,6 @@ df.toJSON()
 
 * 顯示每個欄位的名字和型態，傳回的是 [('col1', 'type1'), ('col2', 'type2'), ...]
 df.dtypes
+
+F.countDistinct()
+df.selectExpr('A as B')
