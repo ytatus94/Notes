@@ -30,6 +30,7 @@
     * Actor methods are non-blocking. They immediately return an object ID and **they create a task which is scheduled on the actor worker.** 
 * with a single actor, no parallelism can be achieved because calls to the actor's methods will be executed one at a time. However, multiple actors can be created and methods can be executed on them in parallel.
 
+### Wait
 * After launching a number of tasks, you may want to know which ones have finished executing. This can be done with `ray.wait()`.
   * `ready_ids, remaining_ids = ray.wait(object_ids, num_returns=1, timeout=None)`
     * `ready_ids`: This is a list of object IDs that are available in the object store.
