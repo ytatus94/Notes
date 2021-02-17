@@ -171,4 +171,7 @@ $ gcloud config list --format='value(core.project)'
 dominos-pipeline
 
 gcloud ai-platform jobs cancel JOB_NAME
+
+# Forward port from AI platform to localhost
+gcloud compute ssh yt-unifi-3 --project seeloz-production --zone us-west1-b -- -L 6006:localhost:6006
 ```
