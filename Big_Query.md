@@ -74,8 +74,8 @@ bq show project_ID:dataset:table
 bq show [--schema] dataset.tabl
 bq show -m ds.model
 ```
-在 jupyter notebook 中使用 BQ 要先安裝 pip install --upgrade google-cloud-bigquery[pandas]
+在 jupyter notebook 中使用 BQ 要先安裝 `pip install --upgrade google-cloud-bigquery[pandas]`
 
-然後要 %load_ext google.cloud.bigquery
+然後要 `%load_ext google.cloud.bigquery`
 
-接下來就可以用 %%bigquery variable的名字 SQL expression 來執行，結果會存在 variable的名字 內
+接下來就可以用 `%%bigquery variable_name SQL expression` 來執行，結果會存在 `variable_name` 內
