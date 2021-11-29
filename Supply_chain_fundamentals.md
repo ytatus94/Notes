@@ -58,7 +58,7 @@ Review and understand historical demand pattern, fluctuation, variation
 * The main goal of manufacturing is to create value for producer and customers
   * Value: worth of good or service or what customers will to pay for it
 #### Manufacturing environment
-* A kind of strategy
+* A manufacturing environment is a manufacturing strategy that is used by a company to produce its products.
 * ETO: Engineer-to-Order
   * has longest lead time
 * MTO: Manufacture-to-Order
@@ -76,22 +76,47 @@ Review and understand historical demand pattern, fluctuation, variation
 * Bell shape curve
 * 4 stages in product life cycle, different stage use different strategy
   * Introduction stage
-    * Ad, promotion, price is high
+    * product enters the market
+    * A lot of advertising and promotions, high design and manufactruing costs, sells price is high
     * ETO
   * Growth stage
-    * production increases and price decreases
+    * product gets accepted by the market
+    * production increases and costs decreases
     * competition begin
     * MTO
   * Maturity state
     * Product well establishes in the market
     * MTS
   * Decline stage
-    * Sales decreases, profit decreases
+    * Sales decreases, profits are reduceed
     * Introduce variation of product to stimulate the demand
+    * Improve product methods to lower costs
     * MTO
   * Phase-out stage
     * Disappear from the market
-
+#### Manufacturing layout
+* Intermittent
+  * Layout workflow from machine to machine, in lots or batches
+  * General purpose machinery and equipment
+  * Production volume is not high enough
+  * also called process layout, job shop, functional layout
+  * MTO
+* Cell
+  * Equipment or worker are aranged in a linear flow
+* Flow
+  * Workflow through dedicated equipment at a constant rate
+  * Production volume is very high
+  * Equipment is dedicated to the product and involve high level of automation
+  * Capital intensive and requires a large upfront financial commitment
+  * product layout
+  * Two types of flow
+    * Repetitive layout
+    * Continuous layout
+* Project
+  * The product is stationary and manufactured at one site. Large and complex product
+  * All manufacturing is performed at the site
+  * Fixed position layout
+  * ETO
 
 
 
