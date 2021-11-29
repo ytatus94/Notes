@@ -11,8 +11,8 @@ The need for a particular item, product, component, or service
 * Dependent: calculated from independent demands (cannot be forecasted)
 #### Demand patterns
 * Trend: demand is changing in a steady rate from period to period
-* Random fluctuation: causes by random occurrence, around the average. Medical is in this category 
-* Seasonal fluctuation: demands are known to repeat each year
+* Random fluctuation: causes by random occurrence, vary around the average and the variation will cancel each other out. Medical is in this category 
+* Seasonal fluctuation: demands are known to repeat themselves each year, it takes short time periods, such as monthly or weekly
 * Cyclical: has wave-like fluctuation, caused by external influence, the period is more than one year
 #### Forecasting demand
 Review and understand historical demand pattern, fluctuation, variation
@@ -22,9 +22,9 @@ Review and understand historical demand pattern, fluctuation, variation
   * remember to round down.
 * Weighted moving average:
   * The weights Ds are decided by supply chain expert, for example
-    * D1 = 75% most recent demand
-    * D2 = 25% 2nd recent demand
-    * D3 = 5% 3rd recent demand
+    * D1 = 75%, 70%, 80% most recent demand
+    * D2 = 25%, 20%, 15% 2nd recent demand
+    * D3 = 5%, 10%, 5% 3rd recent demand
   * For example, if N=3, then X(t=4) = (D1 * X(t=3) + D2 * X(t=2) + D3 * X(t=1)]/3 
 * Exponential smoothing:
   * Most used
