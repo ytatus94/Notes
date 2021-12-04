@@ -1,6 +1,6 @@
 # Spark
 * 在 terminal 中輸入 `spark-shell` 可以進入 spark shell，要退出用 `:q`
-* Spark 不包含 storage，它使用既有的 storage 像是 HDFS, Amazon S3 等等
+* Spark 不包含 storage，它使用既有的 storage 技術像是 HDFS, Amazon S3 等等
   * Hadoop = HDFS + MapReduce
 * Spark 也有用到 MapReduce 的概念 (map, reduce, shuffle)
   * Spark 的目標是要取代 Hadoop 中的 MapReduce implementation (而不是取代 Hadoop 本身)
@@ -11,6 +11,15 @@
 * Spark 提供 in-memory computing at distributed scale
 * Spark execution eigine: spark 把要做的步驟 (就是每一步的 command) 先轉成 logical plan 之後再建立 physical plan，最後把 task 送到 spark cluster 上去執行
 * RDD: Resilient Distributed Datasets
+  * 有 fault tolerance 
+  * RDD is a collection of elements
+  * RDD is immutable, once RDD is created, you cannot change the elements inside the RDD
+* RDD properties:
+  * list of partitions
+    * block of data 叫做 partition
+  * compute functions
+    * Function you apply on the RDD will be applied to all the elements in the RDD 
+  * list of dependencies   
 * Spark 能加快執行的速度是因為
   * in-memory computing
   * spark execution eigine
