@@ -1,3 +1,24 @@
+# Spark
+* 在 terminal 中輸入 `spark-shell` 可以進入 spark shell，要退出用 `:q`
+* Spark 不包含 storage，它使用既有的 storage 像是 HDFS, Amazon S3 等等
+  * Hadoop = HDFS + MapReduce
+* Spark 也有用到 MapReduce 的概念 (map, reduce, shuffle)
+  * Spark 的目標是要取代 Hadoop 中的 MapReduce implementation (而不是取代 Hadoop 本身)
+* Spark 有自己的 resource manager 但是也可以用其他服務提供的 (例如用 YARN)
+  * Hadoop 是用 YARN 來做 resource management 
+* Hadoop 在做 iterative algorithm 和 interactive data mining 的時候很慢，因為每一步驟結束後都會把資料存回到硬碟上
+  * Spark 藉由把資料保存在記憶體中，所以省掉了讀取硬碟所需的時間，因而加快速度
+* Spark 提供 in-memory computing at distributed scale
+* Spark execution eigine: spark 把要做的步驟 (就是每一步的 command) 先轉成 logical plan 之後再建立 physical plan，最後把 task 送到 spark cluster 上去執行
+* RDD: Resilient Distributed Datasets
+* Spark 能加快執行的速度是因為
+  * in-memory computing
+  * spark execution eigine
+  * RDD
+  * spark articheture
+
+
+
 * Spark dataframe 或是 RDD 都是 immutable 的，一但建立後就無法更改
 * Spark dataframe 有 lazy evaluations 的特性，可以對 dataframe 執行 transformations 但是實際上不會動作，直到 action 時才會真的去執行。
 * 建立 SparkContext
