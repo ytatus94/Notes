@@ -18,13 +18,19 @@
   * list of partitions
     * block of data 叫做 partition
   * compute functions
-    * Function you apply on the RDD will be applied to all the elements in the RDD 
+    * Function you apply on the RDD will be applied to all the elements in the RDD
+    * Functions 分成兩類
+      * Transformation: 把一個 RDD 轉換成另一個 RDD
+      * Action: 建立 logical plan
+      * Spark 是 lazy evaluation，遇到 transformation functions 時只檢查語法，遇到 action functions 時才會建立 logical plan
   * list of dependencies   
 * Spark 能加快執行的速度是因為
   * in-memory computing
   * spark execution eigine
   * RDD
   * spark articheture
+* sc 表示 Spark context 是做為 getway to Spark cluster
+* 128 MB block size
 
 
 
