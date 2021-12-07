@@ -31,6 +31,19 @@
   * spark articheture
 * sc 表示 Spark context 是做為 getway to Spark cluster
 * 128 MB block size
+* Spark 有兩種 dependency
+  * Narrow dependency
+    * Depend on everything
+    * Child partition depends on entire parent partition
+    * 用來建立 task
+  * Wide dependency
+    * Depend on portion 
+    * Child partition depends on a portion of each of the parent partition
+    * Wide dependency 會被當成 task execution bounday 用來區分不同的 stage, i.e. 用來建立 stage
+  * Type of dependency
+    * Determine number of task
+    * has an impact on fault tolerance 
+
 
 
 
