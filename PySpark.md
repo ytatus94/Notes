@@ -43,7 +43,15 @@
   * Type of dependency
     * Determine number of task
     * has an impact on fault tolerance 
-
+* 啟動一個 spark shell 就會分派一個 application id 給它
+  * 每一個 application id 可以執行很多 jobs
+    * 一個 job 包含很多 stages, stages 之間以 wide dependency 當作邊界
+      * 一個 stage 可以有很多 tasks
+  *  spark shell 存取 driver，當遇到 action function 時，spark context (sc) 就會把所有的 logical plan 丟給 DAG scheduler，DAG scheduler 把 logical plan 翻譯成 physical plan 然後餵給 Task scheduler，Task scheduler 就把 tasks 丟到 executor 上執行，執行的結果再一路回傳到 driver
+    * DAG: Directly acyclic graph，是一種 execution style，acyclic 就是說當執行 stage N 的時候就不會再回到 stage N-1 了
+    * DAG scheduler 和 Task scheduler 都是在 Driver 上
+    * plysical plan 包含了 stages 和每個 stage 裡面的 tasks，就是告訴 spark 要怎麼執行
+    *   
 
 
 
