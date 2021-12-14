@@ -16,7 +16,7 @@
   * RDD is immutable, once RDD is created, you cannot change the elements inside the RDD
 * RDD properties:
   * list of partitions
-    * block of data 叫做 partition
+    * block of data 叫做 partition，有越多的 partitions 表示有越多的 tasks
   * compute functions
     * Function you apply on the RDD will be applied to all the elements in the RDD
     * Functions 分成兩類
@@ -47,12 +47,28 @@
   * 每一個 application id 可以執行很多 jobs
     * 一個 job 包含很多 stages, stages 之間以 wide dependency 當作邊界
       * 一個 stage 可以有很多 tasks
+    * 一個 action 就會變成一個 job 
   *  spark shell 存取 driver，當遇到 action function 時，spark context (sc) 就會把所有的 logical plan 丟給 DAG scheduler，DAG scheduler 把 logical plan 翻譯成 physical plan 然後餵給 Task scheduler，Task scheduler 就把 tasks 丟到 executor 上執行，執行的結果再一路回傳到 driver
     * DAG: Directly acyclic graph，是一種 execution style，acyclic 就是說當執行 stage N 的時候就不會再回到 stage N-1 了
     * DAG scheduler 和 Task scheduler 都是在 Driver 上
-    * plysical plan 包含了 stages 和每個 stage 裡面的 tasks，就是告訴 spark 要怎麼執行
-    *   
+    * plysical plan 包含了 stages 和每個 stage 裡面的 tasks，就是告訴 spark 要怎麼執行  
+* In-memory computing: intermediate data (wide dependency 邊界上的 data) 會被 cache 到記憶體上，而不是 stage 內部的 RDD 被 cache 到記憶體上
+  * 就是說每個 stage 結束時產生的 data (就是 intermediate data) 會被 cache
+  * spark 雖然不會自動把 RDD cache 到記憶體內，但是我們可以要求 spark 把某個 RDD cache 到記憶體內已重複使用
+    * `RDD_variable.cache()` 或是 `RDD_variable.persist()`，而用 `RDD_variable.unpersist()` 可以釋放記憶體
+      * `RDD_variable.cache()` 和 `RDD_variable.persist(org.apache.spark.storage.StorageLevel.MEMORY_ONLY)` 等價
+      * 還有 `RDD_variable.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)` 和 `RDD_variable.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)` 兩種
+      * 如果 data 無法 fit memory 則會被放到 disk 中
+  * 每個 stage 可能有很多個 tasks 在不同的 nodes 上執行，所以每個 nodes 會把各自的 intermediate data 存下來。萬一 node 死掉了的時候，就失去了原先在該 node 上的 intermediate date，這時候就必須要在其他的 nodes 上重新執行死掉的 node 中的所有 tasks。Spark 藉由這種方式來達到 Fault torelance
 
+---
+# Introduction to Scala
+* Scala 是 scalable language，2003 年發展出來的
+* Scala 特別的地方是，它是 object-oriented programming language 也是 functional language
+  * oop: class 有 data 和能對 data 做的某些 operations
+  * functional programming (FP):data 和 operation 是分開的，把 big job 拆分成小的 functions，每個 function 專注做某件事情，immutability
+
+---
 
 
 * Spark dataframe 或是 RDD 都是 immutable 的，一但建立後就無法更改
