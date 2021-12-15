@@ -67,7 +67,28 @@
 * Scala 特別的地方是，它是 object-oriented programming language 也是 functional language
   * oop: class 有 data 和能對 data 做的某些 operations
   * functional programming (FP):data 和 operation 是分開的，把 big job 拆分成小的 functions，每個 function 專注做某件事情，immutability
-
+* Scala 會自動幫 class 的參數建立 constructor，而且不需要 getter 和 setter 
+* Scala 每一行結尾不需要 `;` 但是也能加上
+* `println()` 就是用來輸出
+* Scala 會自動偵測參數的型態
+* 關鍵字 object 表示告訴 scala 只建立一個 instance, Unit 表示 void, : Unit 表示不回傳任何東西
+  ```scala
+  object Main1 {
+      def main(args: Array[String]): Unit = {
+         method body
+      }
+  }
+  ```
+* `var` 表示 variable 是可以變的， `val` 表示 value 是不能變的常數 
+* 在 Scala 中 method 和 function 是不同的東西，但是很像
+  * method 是 class 的一部分，不是物件，不會有 class file，如果把 method 當成參數傳遞，Scala 實際上是把 method 先轉換成 function 在傳遞該 function
+    * `def method_name(args : types) = {method body}`
+    * 很多行的時候才要加 `{}`
+  * function 會被當成物件，所以編譯時會產生 class file，因為 function 是物件，所以可以當成參數傳遞，也可以從 function 中傳回另一個 function
+    * `val func_name = (args : types) => {function body}`
+    * 可以有匿名的 function `(args : type) => function body`
+    * 接受 function 當參數的 function 是 higher order function
+  * method 和 function 都不用有 return，Scala 會自動幫忙回傳 
 ---
 
 
