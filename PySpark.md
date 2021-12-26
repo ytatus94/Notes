@@ -2,12 +2,19 @@
 * 在 terminal 中輸入 `spark-shell` 可以進入 spark shell，要退出用 `:q`
 * Spark 不包含 storage，它使用既有的 storage 技術像是 HDFS, Amazon S3 等等
   * Hadoop = HDFS + MapReduce
+    * HDFS: Hadoop Distributed File System
+      * block size = 128 MB
+      * 3 replicates for each block to support fault tolerance
+    * MapReduce:
+      * split computational task to a distributed set of files (檔案必須要在 HDFS 上面)
+      * A job tracker (管理所有的 tasks 不執行程式) + many task trackers (真正跑程式是在 work nodes)
+      * 每個步驟結束後就會寫入 disk 中
 * Spark 也有用到 MapReduce 的概念 (map, reduce, shuffle)
   * Spark 的目標是要取代 Hadoop 中的 MapReduce implementation (而不是取代 Hadoop 本身)
 * Spark 有自己的 resource manager 但是也可以用其他服務提供的 (例如用 YARN)
   * Hadoop 是用 YARN 來做 resource management 
 * Hadoop 在做 iterative algorithm 和 interactive data mining 的時候很慢，因為每一步驟結束後都會把資料存回到硬碟上
-  * Spark 藉由把資料保存在記憶體中，所以省掉了讀取硬碟所需的時間，因而加快速度
+  * Spark 藉由把資料保存在記憶體中，所以省掉了讀取硬碟所需的時間，因而加快速度 (官網說比 MapReduce 快 100 倍)
 * Spark 提供 in-memory computing at distributed scale
 * Spark execution eigine: spark 把要做的步驟 (就是每一步的 command) 先轉成 logical plan 之後再建立 physical plan，最後把 task 送到 spark cluster 上去執行
 * RDD: Resilient Distributed Datasets
@@ -23,6 +30,7 @@
       * Transformation: 把一個 RDD 轉換成另一個 RDD
       * Action: 建立 logical plan
       * Spark 是 lazy evaluation，遇到 transformation functions 時只檢查語法，遇到 action functions 時才會建立 logical plan
+      * Transformation 就像是食譜，告訴 Spark 要做什麼，Action 才是真正開始去做
   * list of dependencies   
 * Spark 能加快執行的速度是因為
   * in-memory computing
@@ -60,7 +68,11 @@
       * 還有 `RDD_variable.persist(org.apache.spark.storage.StorageLevel.DISK_ONLY)` 和 `RDD_variable.persist(org.apache.spark.storage.StorageLevel.MEMORY_AND_DISK)` 兩種
       * 如果 data 無法 fit memory 則會被放到 disk 中
   * 每個 stage 可能有很多個 tasks 在不同的 nodes 上執行，所以每個 nodes 會把各自的 intermediate data 存下來。萬一 node 死掉了的時候，就失去了原先在該 node 上的 intermediate date，這時候就必須要在其他的 nodes 上重新執行死掉的 node 中的所有 tasks。Spark 藉由這種方式來達到 Fault torelance
-
+* Spark MLlib 只能用在
+  * Supervise learning
+    * input 只能有兩個欄位: Features, labels
+  * Unsupervise learning
+    * input 只能有一個欄位: Features
 ---
 # Introduction to Scala
 * Scala 是 scalable language，2003 年發展出來的
