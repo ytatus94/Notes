@@ -158,15 +158,15 @@ docker run -v /local/directory/:/path/in/containder -it image_name
 
 
 # Container 容器 常用指令
-run                 新建或啟動      docker run -d centos
-start [Contain ID]  啟動           docker start a469b9226fc8
-stop [Contain ID]   停止           docker stop a469b9226fc8
-rm [Contain ID]     刪除           docker rm a4
-ps -a               列表           docker ps -a
-logs [Contain ID]   查看容器內的資訊 docker logs -f a4
-exec [Contain ID]   進入容器(開新console)    docker exec -ti a4 /bin/bash
-attach              進入容器(退出停止容器)    dockr attach a4
-inspect             查看           docker inspect a4
+run                 新建或啟動              docker run -d centos
+start [Contain ID]  啟動                   docker start a469b9226fc8
+stop [Contain ID]   停止                   docker stop a469b9226fc8
+rm [Contain ID]     刪除                   docker rm a4
+ps -a               列表                   docker ps -a
+logs [Contain ID]   查看容器內的資訊         docker logs -f a4
+exec [Contain ID]   進入容器(開新console)   docker exec -ti a4 /bin/bash
+attach              進入容器(退出停止容器)   dockr attach a4
+inspect             查看                   docker inspect a4
 
 # 進入容器進行操作
 docker exec -it contain_name_or_id bash
